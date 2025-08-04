@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permutation Algorithm Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        .card-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .btn {
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .char-box {
+            transition: all 0.3s ease;
+        }
+        .char-box.highlighted {
+            transform: scale(1.1);
+        }
+        .permutation-item {
+            transition: all 0.2s ease;
+        }
+        .permutation-item.current {
+            transform: scale(1.05);
+        }
+        .step-badge {
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg p-4">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Header Card -->
+        <div class="card p-6">
+            <div class="text-center pb-4">
+                <h1 class="flex items-center justify-center gap-3 text-3xl font-bold text-gray-800 mb-4">
+                    <i data-lucide="shuffle" class="w-8 h-8 text-blue-600"></i>
+                    Permutation Algorithm Visualization
+                </h1>
+                <p class="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                    <strong>Algorithm:</strong> Lexicographic Permutation Generation<br>
+                    This algorithm generates all permutations of a string in lexicographic (dictionary) order. Enter any string to see how your C code would process it step by step!
+                </p>
+            </div>
+            <div class="space-y-4">
+                <div class="flex gap-3 max-w-md mx-auto">
+                    <input 
+                        type="text" 
+                        id="inputString" 
+                        placeholder="Enter string (e.g., abc)" 
+                        value="abc"
+                        class="flex-1 h-12 text-lg border-2 border-gray-300 rounded-lg px-4 focus:border-blue-500 focus:outline-none transition-colors"
+                    >
+                    <button 
+                        onclick="generatePermutations()" 
+                        class="btn h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        Generate Steps
+                    </button>
+                </div>
+                <div id="inputInfo" class="text-center text-gray-600 bg-blue-50 rounded-lg p-3 max-w-md mx-auto hidden">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Visualization Card -->
+        <div id="stepVisualization" class="card hidden">
+            <div class="p-6 pb-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl text-gray-800 font-bold">Step-by-Step Visualization</h2>
+                        <div id="stepCounter" class="text-sm text-gray-500 mt-1"></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="prevStep()" id="prevBtn" class="btn h-10 px-4 bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="skip-back" class="w-4 h-4 mr-1"></i>
+                            Previous
+                        </button>
+                        <button onclick="toggleAutoPlay()" id="playBtn" class="btn h-10 px-4 bg-green-50 border border-green-200 text-green-700 hover:bg-green-100">
+                            <i data-lucide="play" class="w-4 h-4 mr-1"></i>
+                            Auto Play
+                        </button>
+                        <button onclick="nextStep()" id="nextBtn" class="btn h-10 px-4 bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50">
+                            Next
+                            <i data-lucide="skip-forward" class="w-4 h-4 ml-1"></i>
+                        </button>
+                        <button onclick="reset()" class="btn h-10 px-4 bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4 mr-1"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="h-80 flex flex-col justify-start pt-4">
+                    <div id="stepContent" class="space-y-6">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div id="bottomSection" class="grid lg:grid-cols-2 gap-6 hidden">
+            <!-- Permutations List -->
+            <div class="card">
+                <div class="p-6 pb-4 border-b border-gray-200">
+                    <h3 class="text-xl text-gray-800 font-bold flex items-center gap-2">
+                        📝 All Permutations Generated
+                    </h3>
+                    <p class="text-gray-600 mt-1">Complete list of permutations in lexicographic order</p>
+                </div>
+                <div class="p-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <ul id="permutationsList" class="space-y-2">
+                            <!-- Dynamic permutations will be inserted here -->
+                        </ul>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span id="permutationCount" class="inline-block text-sm px-4 py-2 bg-white border border-gray-300 rounded-full">
+                            0 of 0 permutations generated
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm Summary -->
+            <div class="card">
+                <div class="p-6 pb-4 border-b border-gray-200">
+                    <h3 class="text-xl text-gray-800 font-bold">🎯 Algorithm Summary</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
+                        <div class="font-semibold text-gray-800">Time Complexity: O(n! × n)</div>
+                        <div class="text-sm text-gray-600">where n is the length of the string</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4">
+                        <div class="font-semibold text-gray-800">Space Complexity: O(1)</div>
+                        <div class="text-sm text-gray-600">in-place permutation generation</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4">
+                        <div class="font-semibold text-gray-800">Total Permutations: <span id="totalPermutations">0</span></div>
+                        <div class="text-sm text-gray-600">
+                            <span id="factorialDisplay">0! = 0</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="font-semibold text-gray-800 mb-2">Algorithm Steps:</div>
+                        <ol class="text-sm text-gray-600 space-y-1">
+                            <li>1. Sort string to get first permutation</li>
+                            <li>2. Find rightmost ascending pair</li>
+                            <li>3. Find smallest larger character</li>
+                            <li>4. Swap the characters</li>
+                            <li>5. Reverse the suffix</li>
+                            <li>6. Repeat until no more permutations</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let allPermutations = [];
+        let playInterval = null;
+
+        // Helper functions
+        function swapChars(str, i, j) {
+            const arr = str.split('');
+            const temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+            return arr.join('');
+        }
+
+        function sortPermutation(str) {
+            return str.split('').sort().join('');
+        }
+
+        function reverseSubstring(str, start, end) {
+            const arr = str.split('');
+            while (start < end) {
+                const temp = arr[start];
+                arr[start] = arr[end];
+                arr[end] = temp;
+                start++;
+                end--;
+            }
+            return arr.join('');
+        }
+
+        function factorial(n) {
+            return n <= 1 ? 1 : n * factorial(n - 1);
+        }
+
+        function getStepTypeColor(type) {
+            const colors = {
+                'sort': 'bg-purple-100 text-purple-800 border-purple-200',
+                'find_i': 'bg-blue-100 text-blue-800 border-blue-200',
+                'find_j': 'bg-green-100 text-green-800 border-green-200',
+                'swap': 'bg-orange-100 text-orange-800 border-orange-200',
+                'reverse': 'bg-red-100 text-red-800 border-red-200',
+                'output': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                'complete': 'bg-gray-100 text-gray-800 border-gray-200'
+            };
+            return colors[type] || 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+
+        function generateSteps(inputStr) {
+            if (!inputStr || inputStr.length === 0) return;
+
+            const newSteps = [];
+            const permutations = [];
+            let current = sortPermutation(inputStr);
+            const length = current.length;
+
+            // Step 1: Sort the initial permutation
+            if (current !== inputStr) {
+                newSteps.push({
+                    type: 'sort',
+                    permutation: current,
+                    description: 'Initial Sort',
+                    details: `Sorted input "${inputStr}" to get lexicographically smallest permutation`,
+                    highlightPositions: Array.from({ length }, (_, i) => i)
+                });
+            }
+
+            // Add first permutation
+            newSteps.push({
+                type: 'output',
+                permutation: current,
+                description: 'Output Permutation',
+                details: `Generated permutation: "${current}"`,
+                highlightPositions: []
+            });
+            permutations.push(current);
+
+            let stepCount = 0;
+            const maxSteps = 1000;
+
+            while (stepCount < maxSteps) {
+                let i = length - 2;
+                while (i >= 0 && current[i] >= current[i + 1]) {
+                    i--;
+                }
+
+                if (i < 0) {
+                    newSteps.push({
+                        type: 'complete',
+                        permutation: current,
+                        description: 'Algorithm Complete',
+                        details: 'No more permutations possible - all permutations generated!',
+                        highlightPositions: []
+                    });
+                    break;
+                }
+
+                newSteps.push({
+                    type: 'find_i',
+                    permutation: current,
+                    description: 'Find Pivot Position',
+                    details: `Found position i=${i} where current[${i}]='${current[i]}' < current[${i + 1}]='${current[i + 1]}'`,
+                    highlightPositions: [i, i + 1],
+                    i: i
+                });
+
+                let j = length - 1;
+                while (current[j] <= current[i]) {
+                    j--;
+                }
+
+                newSteps.push({
+                    type: 'find_j',
+                    permutation: current,
+                    description: 'Find Swap Position',
+                    details: `Found position j=${j} where current[${j}]='${current[j]}' > current[${i}]='${current[i]}'`,
+                    highlightPositions: [i, j],
+                    i: i,
+                    j: j
+                });
+
+                current = swapChars(current, i, j);
+                newSteps.push({
+                    type: 'swap',
+                    permutation: current,
+                    description: 'Swap Characters',
+                    details: `Swapped characters at positions ${i} and ${j}`,
+                    highlightPositions: [i, j],
+                    i: i,
+                    j: j
+                });
+
+                current = reverseSubstring(current, i + 1, length - 1);
+                newSteps.push({
+                    type: 'reverse',
+                    permutation: current,
+                    description: 'Reverse Suffix',
+                    details: `Reversed substring from position ${i + 1} to ${length - 1}`,
+                    highlightPositions: Array.from({ length: length - i - 1 }, (_, idx) => i + 1 + idx)
+                });
+
+                newSteps.push({
+                    type: 'output',
+                    permutation: current,
+                    description: 'Output Permutation',
+                    details: `Generated permutation: "${current}"`,
+                    highlightPositions: []
+                });
+                permutations.push(current);
+
+                stepCount++;
+            }
+
+            steps = newSteps;
+            allPermutations = permutations;
+            currentStep = 0;
+        }
+
+        function generatePermutations() {
+            const input = document.getElementById('inputString').value.trim();
+            if (input) {
+                generateSteps(input);
+                updateInputInfo(input);
+                showVisualization();
+                updateDisplay();
+                updateSummary(input);
+                isPlaying = false;
+                updatePlayButton();
+            }
+        }
+
+        function updateInputInfo(input) {
+            const inputInfo = document.getElementById('inputInfo');
+            const uniqueChars = new Set(input).size;
+            inputInfo.innerHTML = `<strong>Input:</strong> "${input}" (${input.length} characters, ${uniqueChars} unique)`;
+            inputInfo.classList.remove('hidden');
+        }
+
+        function showVisualization() {
+            document.getElementById('stepVisualization').classList.remove('hidden');
+            document.getElementById('bottomSection').classList.remove('hidden');
+        }
+
+        function updateDisplay() {
+            if (steps.length === 0) return;
+
+            const currentStepData = steps[currentStep];
+            updateStepCounter();
+            updateStepContent(currentStepData);
+            updatePermutationsList();
+            updateNavigationButtons();
+        }
+
+        function updateStepCounter() {
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+        }
+
+        function updateStepContent(stepData) {
+            const stepContent = document.getElementById('stepContent');
+            
+            // String visualization
+            const charBoxes = stepData.permutation.split('').map((char, index) => {
+                const isHighlighted = stepData.highlightPositions && stepData.highlightPositions.includes(index);
+                const highlightClass = isHighlighted ? 'bg-yellow-200 text-yellow-900 border-yellow-400 shadow-lg highlighted' : 'bg-gray-100 text-gray-800 border-gray-300 shadow-sm';
+                return `<span class="char-box inline-block px-4 py-3 rounded-lg border-2 ${highlightClass}">${char}</span>`;
+            }).join('');
+
+            // Code display
+            let codeDisplay = '';
+            if (stepData.type === 'find_i' && stepData.i !== undefined) {
+                codeDisplay = `<div class="bg-gray-900 text-green-400 font-mono text-sm p-3 rounded-lg max-w-xl mx-auto">while (permuta[i] > permuta[i + 1] && i != -1) i--;</div>`;
+            } else if (stepData.type === 'find_j' && stepData.i !== undefined && stepData.j !== undefined) {
+                codeDisplay = `<div class="bg-gray-900 text-green-400 font-mono text-sm p-3 rounded-lg max-w-xl mx-auto">while (permuta[j] < permuta[i]) j--;</div>`;
+            } else if (stepData.type === 'swap' && stepData.i !== undefined && stepData.j !== undefined) {
+                codeDisplay = `<div class="bg-gray-900 text-green-400 font-mono text-sm p-3 rounded-lg max-w-xl mx-auto">swap_chars(&permuta[${stepData.i}], &permuta[${stepData.j}]);</div>`;
+            } else if (stepData.type === 'reverse' && stepData.highlightPositions) {
+                const start = stepData.highlightPositions[0];
+                const end = stepData.highlightPositions[stepData.highlightPositions.length - 1];
+                codeDisplay = `<div class="bg-gray-900 text-green-400 font-mono text-sm p-3 rounded-lg max-w-xl mx-auto">revers(permuta, ${start}, ${end});</div>`;
+            }
+
+            stepContent.innerHTML = `
+                <div class="text-center">
+                    <div class="text-5xl font-mono tracking-wider mb-4 flex justify-center items-center gap-2">
+                        ${charBoxes}
+                    </div>
+                </div>
+                <div class="text-center space-y-4">
+                    <span class="step-badge inline-block text-lg px-6 py-3 border-2 ${getStepTypeColor(stepData.type)}">
+                        ${stepData.description}
+                    </span>
+                    <div class="bg-blue-50 rounded-lg p-4 max-w-2xl mx-auto">
+                        <p class="text-gray-700 font-medium">${stepData.details}</p>
+                    </div>
+                    ${codeDisplay}
+                </div>
+            `;
+        }
+
+        function updatePermutationsList() {
+            const permutationsList = document.getElementById('permutationsList');
+            const currentPermutationCount = getCurrentPermutationCount();
+            
+            const listItems = allPermutations.slice(0, currentPermutationCount).map((perm, index) => {
+                const currentStepData = steps[currentStep];
+                const isCurrent = currentStepData && currentStepData.type === 'output' && currentStepData.permutation === perm;
+                const currentClass = isCurrent ? 'bg-blue-100 border-blue-300 shadow-md current' : 'bg-white border-gray-200 hover:bg-gray-50';
+                
+                return `
+                    <li class="permutation-item flex items-center gap-3 font-mono p-3 rounded-lg border ${currentClass}">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></span>
+                        <span class="text-lg">${perm}</span>
+                    </li>
+                `;
+            }).join('');
+
+            permutationsList.innerHTML = listItems;
+            
+            document.getElementById('permutationCount').textContent = 
+                `${currentPermutationCount} of ${allPermutations.length} permutations generated`;
+        }
+
+        function getCurrentPermutationCount() {
+            if (steps.length === 0) return 0;
+            let count = 0;
+            for (let i = 0; i <= currentStep; i++) {
+                if (steps[i] && steps[i].type === 'output') {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep === steps.length - 1;
+        }
+
+        function updateSummary(input) {
+            const totalPerms = factorial(input.length);
+            document.getElementById('totalPermutations').textContent = totalPerms;
+            document.getElementById('factorialDisplay').textContent = `${input.length}! = ${totalPerms}`;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            currentStep = 0;
+            isPlaying = false;
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+            updateDisplay();
+            updatePlayButton();
+        }
+
+        function toggleAutoPlay() {
+            isPlaying = !isPlaying;
+            updatePlayButton();
+            
+            if (isPlaying) {
+                playInterval = setInterval(() => {
+                    if (currentStep < steps.length - 1) {
+                        nextStep();
+                    } else {
+                        isPlaying = false;
+                        updatePlayButton();
+                        clearInterval(playInterval);
+                        playInterval = null;
+                    }
+                }, 1500);
+            } else {
+                if (playInterval) {
+                    clearInterval(playInterval);
+                    playInterval = null;
+                }
+            }
+        }
+
+        function updatePlayButton() {
+            const playBtn = document.getElementById('playBtn');
+            if (isPlaying) {
+                playBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 mr-1"></i>Pause';
+                playBtn.className = 'btn h-10 px-4 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100';
+            } else {
+                playBtn.innerHTML = '<i data-lucide="play" class="w-4 h-4 mr-1"></i>Auto Play';
+                playBtn.className = 'btn h-10 px-4 bg-green-50 border border-green-200 text-green-700 hover:bg-green-100';
+            }
+            lucide.createIcons();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            
+            // Update input info on page load
+            const input = document.getElementById('inputString').value;
+            if (input) {
+                const uniqueChars = new Set(input).size;
+                document.getElementById('inputInfo').innerHTML = `<strong>Input:</strong> "${input}" (${input.length} characters, ${uniqueChars} unique)`;
+                document.getElementById('inputInfo').classList.remove('hidden');
+            }
+
+            // Add enter key support for input
+            document.getElementById('inputString').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generatePermutations();
+                }
+            });
+
+            // Update input info on input change
+            document.getElementById('inputString').addEventListener('input', function(e) {
+                const input = e.target.value;
+                if (input) {
+                    const uniqueChars = new Set(input).size;
+                    document.getElementById('inputInfo').innerHTML = `<strong>Input:</strong> "${input}" (${input.length} characters, ${uniqueChars} unique)`;
+                    document.getElementById('inputInfo').classList.remove('hidden');
+                } else {
+                    document.getElementById('inputInfo').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
