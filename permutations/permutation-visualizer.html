@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permutation Algorithm Visualization</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .algorithm-info {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4299e1;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4299e1, #667eea);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .step-container {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .step-header {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-number {
+            background: linear-gradient(45deg, #4299e1, #667eea);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .permutation-display {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .char-array {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .char-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #4299e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .char-box.highlight {
+            background: #ffd700;
+            border-color: #f6ad55;
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .char-box.pivot {
+            background: #ff6b6b;
+            border-color: #e53e3e;
+            color: white;
+        }
+        
+        .char-box.successor {
+            background: #4ecdc4;
+            border-color: #319795;
+            color: white;
+        }
+        
+        .algorithm-step {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .code-highlight {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .summary {
+            background: #e6fffa;
+            border: 2px solid #38b2ac;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4299e1, #667eea);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Permutation Algorithm Visualization</h1>
+        
+        <div class="algorithm-info">
+            <h3>Algorithm: Lexicographic Permutation Generation</h3>
+            <p>This algorithm generates all permutations of a string in lexicographic (dictionary) order. Enter any string to see how your C code would process it step by step!</p>
+            <p id="permutationCount"></p>
+        </div>
+        
+        <div class="controls">
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="inputString" placeholder="Enter string (e.g., abc, abcd)" 
+                       style="padding: 10px; font-size: 16px; border: 2px solid #4299e1; border-radius: 8px; margin-right: 10px; font-family: 'Courier New', monospace;">
+                <button onclick="generateSteps()" style="background: linear-gradient(45deg, #48bb78, #38a169);">Generate Steps</button>
+            </div>
+            <button onclick="prevStep()">← Previous Step</button>
+            <button onclick="nextStep()">Next Step →</button>
+            <button onclick="autoPlay()">▶ Auto Play</button>
+            <button onclick="reset()">🔄 Reset</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        
+        <div id="stepContainer"></div>
+        
+        <div class="summary">
+            <h3>🎯 Algorithm Summary</h3>
+            <p><strong>Time Complexity:</strong> O(n! × n) - where n is the length of the string</p>
+            <p><strong>Space Complexity:</strong> O(1) - in-place permutation generation</p>
+            <p id="totalPermutations">Enter a string to see total permutations</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let autoPlayInterval = null;
+        let steps = [];
+        let currentString = "";
+        
+        // Utility functions matching your C code
+        function swap(arr, i, j) {
+            let temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        
+        function sortString(str) {
+            return str.split('').sort().join('');
+        }
+        
+        function reverseSegment(arr, start, end) {
+            while (start < end) {
+                swap(arr, start, end);
+                start++;
+                end--;
+            }
+        }
+        
+        function factorial(n) {
+            if (n <= 1) return 1;
+            return n * factorial(n - 1);
+        }
+        
+        function findNextPermutation(permArr) {
+            let i = permArr.length - 2;
+            
+            // Find rightmost character smaller than its successor
+            while (i >= 0 && permArr[i] >= permArr[i + 1]) {
+                i--;
+            }
+            
+            if (i < 0) return null; // No more permutations
+            
+            // Find rightmost character larger than pivot
+            let j = permArr.length - 1;
+            while (permArr[j] <= permArr[i]) {
+                j--;
+            }
+            
+            return { pivot: i, successor: j };
+        }
+        
+        function generateAllSteps(inputStr) {
+            if (!inputStr || inputStr.length === 0) {
+                return [{
+                    permutation: "",
+                    description: "Empty string - no permutations to generate",
+                    details: "Please enter a non-empty string",
+                    algorithm: "No algorithm steps for empty input",
+                    code: "return (1); // Error case",
+                    highlights: [],
+                    pivot: -1,
+                    successor: -1
+                }];
+            }
+            
+            if (inputStr.length === 1) {
+                return [{
+                    permutation: inputStr,
+                    description: "Single character - only one permutation",
+                    details: "Your code handles this case with: if (length == 1) return (puts(permuta), 0);",
+                    algorithm: "puts(permuta) and exit",
+                    code: `puts("${inputStr}"); return (0);`,
+                    highlights: [],
+                    pivot: -1,
+                    successor: -1
+                }];
+            }
+            
+            let steps = [];
+            let current = sortString(inputStr).split('');
+            let stepCount = 0;
+            const maxSteps = Math.min(factorial(inputStr.length), 50); // Limit for performance
+            
+            // Initial sorted permutation
+            steps.push({
+                permutation: current.join(''),
+                description: "Initial permutation (sorted)",
+                details: `sort_permuta() sorted the input "${inputStr}" to get the lexicographically smallest permutation`,
+                algorithm: "sort_permuta(permuta) - bubble sort to get initial state",
+                code: `sort_permuta("${inputStr}"); // Result: ${current.join('')}`,
+                highlights: [],
+                pivot: -1,
+                successor: -1
+            });
+            
+            while (stepCount < maxSteps - 1) {
+                // Print current permutation step
+                steps.push({
+                    permutation: current.join(''),
+                    description: `Print permutation #${stepCount + 1}`,
+                    details: "Output current permutation in the do-while loop",
+                    algorithm: "puts(permuta) prints current permutation",
+                    code: `puts(permuta); // Prints: ${current.join('')}`,
+                    highlights: [],
+                    pivot: -1,
+                    successor: -1
+                });
+                
+                let nextPerm = findNextPermutation(current);
+                if (!nextPerm) break;
+                
+                let { pivot, successor } = nextPerm;
+                
+                // Show finding pivot
+                steps.push({
+                    permutation: current.join(''),
+                    description: "Find rightmost pivot",
+                    details: `Looking for rightmost i where permuta[i] < permuta[i+1]. Found at position ${pivot}`,
+                    algorithm: `while (permuta[i] > permuta[i + 1]) i--; // i = ${pivot}`,
+                    code: `i = ${pivot}; // '${current[pivot]}' < '${current[pivot + 1]}'`,
+                    highlights: [pivot, pivot + 1],
+                    pivot: pivot,
+                    successor: -1
+                });
+                
+                // Show finding successor
+                steps.push({
+                    permutation: current.join(''),
+                    description: "Find rightmost successor",
+                    details: `Looking for rightmost j where permuta[j] > permuta[${pivot}]. Found '${current[successor]}' at position ${successor}`,
+                    algorithm: `while (permuta[j] < permuta[i]) j--; // j = ${successor}`,
+                    code: `j = ${successor}; // '${current[successor]}' > '${current[pivot]}'`,
+                    highlights: [pivot, successor],
+                    pivot: pivot,
+                    successor: successor
+                });
+                
+                // Perform swap
+                swap(current, pivot, successor);
+                steps.push({
+                    permutation: current.join(''),
+                    description: "Swap pivot with successor",
+                    details: `Swapped '${current[successor]}' and '${current[pivot]}' to increase permutation`,
+                    algorithm: "swap(&permuta[i], &permuta[j])",
+                    code: `swap(&permuta[${pivot}], &permuta[${successor}]); // '${current[successor]}' ↔ '${current[pivot]}'`,
+                    highlights: [pivot, successor],
+                    pivot: -1,
+                    successor: -1
+                });
+                
+                // Reverse suffix
+                if (pivot + 1 < current.length - 1) {
+                    let beforeReverse = current.slice();
+                    reverseSegment(current, pivot + 1, current.length - 1);
+                    steps.push({
+                        permutation: current.join(''),
+                        description: "Reverse suffix",
+                        details: `Reversed characters from position ${pivot + 1} to ${current.length - 1}`,
+                        algorithm: `revers(permuta, ${pivot + 1}, ${current.length - 1})`,
+                        code: `revers(permuta, ${pivot + 1}, ${current.length - 1}); // "${beforeReverse.slice(pivot + 1).join('')}" → "${current.slice(pivot + 1).join('')}"`,
+                        highlights: current.slice(pivot + 1).map((_, i) => i + pivot + 1),
+                        pivot: -1,
+                        successor: -1
+                    });
+                } else {
+                    steps.push({
+                        permutation: current.join(''),
+                        description: "Reverse suffix (no change)",
+                        details: `Only one character after pivot, so reverse has no effect`,
+                        algorithm: `revers(permuta, ${pivot + 1}, ${current.length - 1})`,
+                        code: `revers(permuta, ${pivot + 1}, ${current.length - 1}); // No change needed`,
+                        highlights: [current.length - 1],
+                        pivot: -1,
+                        successor: -1
+                    });
+                }
+                
+                stepCount++;
+            }
+            
+            if (stepCount >= maxSteps - 1) {
+                steps.push({
+                    permutation: current.join(''),
+                    description: "Continue pattern...",
+                    details: `The algorithm continues this pattern. Showing first ${maxSteps} steps for performance.`,
+                    algorithm: "Pattern repeats until find_permutations returns NO_MORE_PREMUTATIONS",
+                    code: "// Continues until all permutations are generated",
+                    highlights: [],
+                    pivot: -1,
+                    successor: -1
+                });
+            } else {
+                steps.push({
+                    permutation: current.join(''),
+                    description: "Algorithm complete",
+                    details: "No more permutations can be generated - reached the end",
+                    algorithm: "find_permutations returns NO_MORE_PREMUTATIONS",
+                    code: "return (NO_MORE_PREMUTATIONS); // Exit loop",
+                    highlights: [],
+                    pivot: -1,
+                    successor: -1
+                });
+            }
+            
+            return steps;
+        }
+        
+        function generateSteps() {
+            const input = document.getElementById('inputString').value.trim();
+            if (!input) {
+                alert('Please enter a string!');
+                return;
+            }
+            
+            currentString = input;
+            steps = generateAllSteps(input);
+            currentStep = 0;
+            renderStep(currentStep);
+            
+            // Update info
+            const uniqueChars = new Set(input).size;
+            const totalPerms = uniqueChars === input.length ? factorial(input.length) : "varies (duplicates present)";
+            document.getElementById('permutationCount').textContent = 
+                `Input: "${input}" (${input.length} characters, ${uniqueChars} unique)`;
+            document.getElementById('totalPermutations').textContent = 
+                `Total Permutations: ${totalPerms}`;
+        }
+        
+        function renderStep(stepIndex) {
+            if (steps.length === 0) {
+                document.getElementById('stepContainer').innerHTML = 
+                    '<div class="step-container"><p>Please enter a string and click "Generate Steps" to begin!</p></div>';
+                return;
+            }
+            
+            const step = steps[stepIndex];
+            const container = document.getElementById('stepContainer');
+            
+            container.innerHTML = `
+                <div class="step-container">
+                    <div class="step-header">
+                        <div class="step-number">${stepIndex + 1}</div>
+                        ${step.description}
+                    </div>
+                    
+                    <div class="permutation-display">${step.permutation}</div>
+                    
+                    <div class="char-array">
+                        ${step.permutation.split('').map((char, i) => `
+                            <div class="char-box ${step.highlights.includes(i) ? 'highlight' : ''} 
+                                                  ${step.pivot === i ? 'pivot' : ''} 
+                                                  ${step.successor === i ? 'successor' : ''}"
+                                 title="${step.pivot === i ? 'Pivot' : step.successor === i ? 'Successor' : 'Position ' + i}">
+                                ${char}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="algorithm-step">
+                        <strong>Algorithm Step:</strong> ${step.algorithm}
+                    </div>
+                    
+                    <div class="code-highlight">${step.code}</div>
+                    
+                    <div class="algorithm-step">
+                        <strong>Details:</strong> ${step.details}
+                    </div>
+                </div>
+            `;
+            
+            // Update progress bar
+            const progress = steps.length > 0 ? ((stepIndex + 1) / steps.length) * 100 : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        }
+        
+        function autoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                return;
+            }
+            
+            autoPlayInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    nextStep();
+                } else {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                }
+            }, 2000);
+        }
+        
+        function reset() {
+            currentStep = 0;
+            if (steps.length > 0) {
+                renderStep(currentStep);
+            }
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+        
+        // Initialize with default
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('inputString').value = 'abcd';
+            renderStep(0);
+            
+            // Allow Enter key to generate steps
+            document.getElementById('inputString').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateSteps();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
