@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Invalid Parentheses Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: #e6fffa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #38b2ac;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c7a7b;
+        }
+        
+        .stat-label {
+            color: #4a5568;
+            margin-top: 5px;
+        }
+        
+        .visualization {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-header {
+            font-weight: bold;
+            color: #4c51bf;
+            margin-bottom: 10px;
+        }
+        
+        .string-display {
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        
+        .char {
+            display: inline-block;
+            padding: 2px 4px;
+            margin: 1px;
+            border-radius: 3px;
+        }
+        
+        .open-paren {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #68d391;
+        }
+        
+        .close-paren {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .removed {
+            background: #fbb6ce;
+            color: #97266d;
+            text-decoration: line-through;
+            border: 1px solid #f687b3;
+        }
+        
+        .valid {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #68d391;
+        }
+        
+        .other-char {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .results {
+            background: #f0fff4;
+            border: 2px solid #38a169;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #68d391;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+        
+        .recursion-tree {
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .tree-node {
+            margin-left: 20px;
+            padding: 5px;
+            border-left: 2px solid #cbd5e0;
+            margin-bottom: 5px;
+        }
+        
+        .tree-node.active {
+            background: #ebf8ff;
+            border-left-color: #3182ce;
+        }
+        
+        .example-buttons {
+            margin: 15px 0;
+        }
+        
+        .example-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .example-btn:hover {
+            background: #cbd5e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Remove Invalid Parentheses Visualizer</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="input-string">Enter string with parentheses:</label>
+                <input type="text" id="input-string" placeholder="e.g., ()())())" value="()())())">
+            </div>
+            
+            <div class="example-buttons">
+                <strong>Examples:</strong>
+                <button class="example-btn" onclick="setExample('()())')">()())</button>
+                <button class="example-btn" onclick="setExample('(v)())'))">(v)())</button>
+                <button class="example-btn" onclick="setExample('(((')">(((</button>
+                <button class="example-btn" onclick="setExample(')))')))</button>
+                <button class="example-btn" onclick="setExample('()(()')">()(()</button>
+                <button class="example-btn" onclick="setExample('(a)())())')">(a)())())</button>
+            </div>
+            
+            <button onclick="visualize()">🚀 Visualize Algorithm</button>
+            <button onclick="clearResults()">🧹 Clear</button>
+        </div>
+        
+        <div id="stats" class="stats" style="display: none;"></div>
+        <div id="validation" class="visualization" style="display: none;"></div>
+        <div id="recursion" class="visualization" style="display: none;"></div>
+        <div id="results" class="results" style="display: none;"></div>
+    </div>
+
+    <script>
+        let steps = [];
+        let validResults = [];
+        
+        function setExample(example) {
+            document.getElementById('input-string').value = example;
+        }
+        
+        function clearResults() {
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('validation').style.display = 'none';
+            document.getElementById('recursion').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            steps = [];
+            validResults = [];
+        }
+        
+        function strlen(str) {
+            return str.length;
+        }
+        
+        function calcIP(str) {
+            let open = 0, close = 0;
+            for (let char of str) {
+                if (char === '(') {
+                    open++;
+                } else if (char === ')') {
+                    if (open > 0) {
+                        open--;
+                    } else {
+                        close++;
+                    }
+                }
+            }
+            return open + close;
+        }
+        
+        function validStr(str) {
+            let arr = str.split('');
+            let len = arr.length;
+            
+            // Remove leading closing parentheses
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i] === '(') break;
+                if (arr[i] === ')') arr[i] = '~';
+            }
+            
+            // Remove trailing opening parentheses
+            for (let i = len - 1; i >= 0; i--) {
+                if (arr[i] === ')') break;
+                if (arr[i] === '(') arr[i] = '~';
+            }
+            
+            return arr.join('');
+        }
+        
+        function balanceP(str, buffer, rm, open, i, depth = 0) {
+            steps.push({
+                depth: depth,
+                i: i,
+                rm: rm,
+                open: open,
+                buffer: buffer.slice(),
+                action: `Processing index ${i}, rm=${rm}, open=${open}`
+            });
+            
+            if (i >= str.length) {
+                if (rm === 0 && open === 0) {
+                    let result = buffer.join('').replace(/~/g, '');
+                    validResults.push(result);
+                    steps.push({
+                        depth: depth,
+                        i: i,
+                        rm: rm,
+                        open: open,
+                        buffer: buffer.slice(),
+                        action: `✅ Valid result found: ${result}`,
+                        isResult: true
+                    });
+                }
+                return;
+            }
+            
+            // Skip removed characters
+            if (rm > 0 && str[i] !== '~') {
+                buffer[i] = '_';
+                steps.push({
+                    depth: depth + 1,
+                    i: i,
+                    rm: rm - 1,
+                    open: open,
+                    buffer: buffer.slice(),
+                    action: `Removing character '${str[i]}' at position ${i}`
+                });
+                balanceP(str, buffer, rm - 1, open, i + 1, depth + 1);
+            }
+            
+            if (str[i] === '(') {
+                buffer[i] = '(';
+                steps.push({
+                    depth: depth + 1,
+                    i: i,
+                    rm: rm,
+                    open: open + 1,
+                    buffer: buffer.slice(),
+                    action: `Adding '(' at position ${i}, open count becomes ${open + 1}`
+                });
+                balanceP(str, buffer, rm, open + 1, i + 1, depth + 1);
+            } else if (str[i] === ')') {
+                if (open > 0) {
+                    buffer[i] = ')';
+                    steps.push({
+                        depth: depth + 1,
+                        i: i,
+                        rm: rm,
+                        open: open - 1,
+                        buffer: buffer.slice(),
+                        action: `Adding ')' at position ${i}, open count becomes ${open - 1}`
+                    });
+                    balanceP(str, buffer, rm, open - 1, i + 1, depth + 1);
+                }
+                return;
+            } else if (str[i] !== '~') {
+                buffer[i] = str[i];
+                steps.push({
+                    depth: depth + 1,
+                    i: i,
+                    rm: rm,
+                    open: open,
+                    buffer: buffer.slice(),
+                    action: `Adding character '${str[i]}' at position ${i}`
+                });
+                balanceP(str, buffer, rm, open, i + 1, depth + 1);
+            } else {
+                // Skip ~ characters
+                balanceP(str, buffer, rm, open, i + 1, depth);
+            }
+        }
+        
+        function visualizeString(str, title) {
+            let html = `<h3>${title}:</h3><div class="string-display">`;
+            for (let i = 0; i < str.length; i++) {
+                let char = str[i];
+                let className = '';
+                if (char === '(') className = 'open-paren';
+                else if (char === ')') className = 'close-paren';
+                else if (char === '~') className = 'removed';
+                else if (char === '_') className = 'removed';
+                else className = 'other-char';
+                
+                html += `<span class="char ${className}">${char}</span>`;
+            }
+            html += '</div>';
+            return html;
+        }
+        
+        function visualize() {
+            clearResults();
+            
+            const inputStr = document.getElementById('input-string').value.trim();
+            if (!inputStr) {
+                alert('Please enter a string!');
+                return;
+            }
+            
+            const length = strlen(inputStr);
+            const toRemove = calcIP(inputStr);
+            const validatedStr = validStr(inputStr);
+            
+            // Show stats
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${length}</div>
+                    <div class="stat-label">String Length</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${toRemove}</div>
+                    <div class="stat-label">Characters to Remove</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${length - toRemove}</div>
+                    <div class="stat-label">Final Length</div>
+                </div>
+            `;
+            document.getElementById('stats').style.display = 'grid';
+            
+            // Show validation step
+            document.getElementById('validation').innerHTML = `
+                <h2>📋 Step 1: Input Validation</h2>
+                ${visualizeString(inputStr, "Original String")}
+                ${visualizeString(validatedStr, "After Removing Leading ')' and Trailing '('")}
+                <p><strong>Explanation:</strong> First, we remove invalid closing parentheses at the beginning and opening parentheses at the end, marking them with '~'.</p>
+            `;
+            document.getElementById('validation').style.display = 'block';
+            
+            // Run the recursive algorithm
+            const buffer = new Array(length);
+            balanceP(validatedStr, buffer, calcIP(validatedStr), 0, 0);
+            
+            // Show recursion steps (limited to avoid overwhelming display)
+            let recursionHtml = '<h2>🔄 Step 2: Recursive Exploration</h2>';
+            recursionHtml += '<p><strong>Algorithm:</strong> Try removing different combinations of invalid parentheses to find all valid results.</p>';
+            
+            const maxStepsToShow = 50;
+            const stepsToShow = steps.slice(0, maxStepsToShow);
+            
+            for (let step of stepsToShow) {
+                let indent = '  '.repeat(step.depth);
+                let className = step.isResult ? 'step valid' : 'step';
+                recursionHtml += `
+                    <div class="${className}">
+                        <div class="step-header">${indent}${step.action}</div>
+                        <div style="margin-left: ${step.depth * 20}px;">
+                            Buffer: ${step.buffer.map((c, i) => c || '_').join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (steps.length > maxStepsToShow) {
+                recursionHtml += `<p><em>... and ${steps.length - maxStepsToShow} more steps</em></p>`;
+            }
+            
+            document.getElementById('recursion').innerHTML = recursionHtml;
+            document.getElementById('recursion').style.display = 'block';
+            
+            // Show final results
+            let resultsHtml = '<h2>✅ Step 3: Valid Results</h2>';
+            if (validResults.length === 0) {
+                resultsHtml += '<p>No valid parentheses combinations found.</p>';
+            } else {
+                resultsHtml += `<p>Found <strong>${validResults.length}</strong> valid combination(s):</p>`;
+                const uniqueResults = [...new Set(validResults)];
+                for (let result of uniqueResults) {
+                    resultsHtml += `<div class="result-item">${result || '(empty string)'}</div>`;
+                }
+            }
+            
+            document.getElementById('results').innerHTML = resultsHtml;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Allow Enter key to trigger visualization
+        document.getElementById('input-string').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                visualize();
+            }
+        });
+        
+        // Auto-run with default example
+        window.onload = function() {
+            visualize();
+        };
+    </script>
+</body>
+</html>
