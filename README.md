@@ -22,4 +22,13 @@ Generate all possible permutations of `n` unique elements. This problem helps de
 🔗 **Code Source**: [Solution](https://github.com/na7li/problem-solutions/tree/main/permutations)
 📂 **Directory**: `permutations/`  
 
+### 2. rip
+
+**Description**:  
+remove invalid parenthisis from a string and return valid forma.
+
+🔗 **Visualizer**: [View Live rip Visualizer](https://na7li.github.io/problem-solutions/rip/rip_visualizer.html)
+🔗 **Code Source**: [Solution](https://github.com/na7li/problem-solutions/blob/main/rip/rip.c)
+📂 **Directory**: `rip/`  
+
 ---
