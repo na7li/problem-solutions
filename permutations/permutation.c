@@ -71,7 +71,7 @@ int find_permutation(char *permuta, int end)
         j--;
     swap_chars(&permuta[i], &permuta[j]);
     revers(permuta, i + 1, end);
-
+    return (NEW_PERMUTATION);
 }
 
 int main(int ac, char **av)
